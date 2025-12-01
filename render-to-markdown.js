@@ -54,7 +54,7 @@ function extractMetadata(entry, entryType) {
 		references: []
 	};
 
-	// Extract tags from entries text
+	// 1. Extract inline {@...} tags from entries text
 	const entryString = JSON.stringify(entry.entries || []);
 	const tagPattern = /{@(\w+)\s+([^}]+)}/g;
 	let match;
@@ -65,9 +65,49 @@ function extractMetadata(entry, entryType) {
 
 		metadata.references.push({
 			tagType,
-			content: tagContent
+			content: tagContent,
+			referenceType: "inline_tag"
 		});
 	}
+
+	// 2. Extract explicit "seeAlso*" reference fields
+	const seeAlsoFields = [
+		{ field: 'seeAlsoAction', tagType: 'action' },
+		{ field: 'seeAlsoFeature', tagType: 'feature' },
+		{ field: 'seeAlsoDeck', tagType: 'deck' },
+		{ field: 'seeAlsoVehicle', tagType: 'vehicle' },
+		{ field: 'seeAlsoSpell', tagType: 'spell' },
+		{ field: 'seeAlsoItem', tagType: 'item' }
+	];
+
+	for (const { field, tagType } of seeAlsoFields) {
+		if (entry[field] && Array.isArray(entry[field])) {
+			entry[field].forEach(ref => {
+				metadata.references.push({
+					tagType,
+					content: ref,
+					referenceType: field
+				});
+			});
+		}
+	}
+
+	// 3. Extract variant rule source
+	if (entry.fromVariant) {
+		metadata.references.push({
+			tagType: 'variantrule',
+			content: entry.fromVariant,
+			referenceType: 'fromVariant'
+		});
+	}
+
+	// 4. Add commonly useful metadata fields
+	if (entry.level !== undefined) metadata.level = entry.level;
+	if (entry.school) metadata.school = entry.school;
+	if (entry.time) metadata.time = entry.time;
+	if (entry.rarity) metadata.rarity = entry.rarity;
+	if (entry.tier) metadata.tier = entry.tier;
+	if (entry.type) metadata.itemType = entry.type;
 
 	return metadata;
 }
