@@ -33,3 +33,6 @@ npm-debug.log*
 
 # Node.js
 node_modules/
+curated-output/
+curated-metadata/
+.specstory/

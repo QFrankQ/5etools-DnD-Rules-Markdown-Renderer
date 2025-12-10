@@ -4,7 +4,7 @@ Example usage of the D&D Renderer Python wrapper
 This demonstrates how to integrate the renderer into your Agentic DM project.
 """
 
-from dnd_renderer import DnDRenderer
+from renderer_client import DnDRenderer
 from pathlib import Path
 
 
